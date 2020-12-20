@@ -28,7 +28,7 @@ def receive():
 
 #Replying with fact JUST HELLO ATM
 while True:
-    text = client.get_response()
+    text = get_response()
     print text
     if "PRIVATE" in text and channel in text and "hello" in text:
         irc.send(channel, "Hello!")
@@ -39,6 +39,15 @@ def write():
         message = '{}: {}'.format(nickname, input(''))
         client.send(message.encode('ascii'))
 
+def get_response(self):
+        time.sleep(1)
+        # Get the response to a message
+        response = self.client_socket.recv(2040).decode("UTF-8")
+
+        if resp.find('PING') != -1:
+            self.client_socket.send(bytes('PONG ' + resp.split().decode("UTF-8") [1] + '\r\n', "UTF-8"))
+
+        return resp
 
 # Starting Threads For Listening And Writing
 receive_thread = threading.Thread(target=receive)
