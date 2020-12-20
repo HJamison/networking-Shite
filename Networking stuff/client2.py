@@ -4,7 +4,7 @@ import threading
 p_host = '127.0.0.1'
 p_port = 6667
 
-nickname = input("Choose a nickname: ")
+nickname = "The_ZUCC"
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((p_host,p_port))
@@ -26,6 +26,12 @@ def receive():
             client.close()
             break
 
+#Replying with fact JUST HELLO ATM
+while True:
+    text = client.get_response()
+    print text
+    if "PRIVATE" in text and channel in text and "hello" in text:
+        irc.send(channel, "Hello!")
 
 # Sending Messages To Server
 def write():

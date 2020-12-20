@@ -2,6 +2,7 @@ import socket
 import select
 import sys
 import errno
+import time
 
 header_length = 10
 IP = "127.0.0.1"
@@ -17,6 +18,10 @@ client_socket.setblocking(False)
 username = my_username.encode("utf-8")
 unsername_header = f"{len(username):<{header_length}}".encode("utf-8")
 client_socket.send(unsername_header + username)
+
+def send(self, channel, msg):
+        # Transfer message
+        self.client_socket.send(bytes("PRIVATE " + channel + " " + msg + "\n", "UTF-8"))#
 
 while True:
     #Sending recieving messages here
@@ -56,3 +61,14 @@ while True:
     except Except as e:
         print('General error',str(e))
         sys.exit()
+
+
+def get_response(self):
+        time.sleep(1)
+        # Get the response to a message
+        response = self.client_socket.recv(2040).decode("UTF-8")
+
+        if resp.find('PING') != -1:
+            self.client_socket.send(bytes('PONG ' + resp.split().decode("UTF-8") [1] + '\r\n', "UTF-8"))
+
+        return resp
