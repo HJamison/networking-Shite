@@ -52,7 +52,3 @@ while True:
             print('Reading error',str(e))
             sys.exit()
         continue
-
-    except Except as e:
-        print('General error',str(e))
-        sys.exit()
