@@ -1,42 +1,28 @@
 import socket
 import threading
+import randfacts
+import os
+import random
+from ircBotStuff import *
+import os
+import random
 
 p_host = '127.0.0.1'
 p_port = 6667
 
-nickname = input("Choose a nickname: ")
+## IRCBot Config
+channel = "#python"
+botnick = "TheZucc"
+botnickpass = "zucc"
+botpass = "<%= @zucc_password %>"
+irc = botIRC() # calling bot irc class
+irc.connect(p_host, p_port, channel, botnick, botpass, botnickpass)
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect((p_host,p_port))
+while True:
+    text = irc.get_response()
+    print(text)
+ 
+    if "PRIVMSG" in text and channel in text:
+        x = randfacts.getFact()
+        irc.send(channel, x)
 
-# Listening to Server and Sending Nickname
-def receive():
-    while True:
-        try:
-            # Receive Message From Server
-            # If 'NICK' Send Nickname
-            message = client.recv(1024).decode('ascii')
-            if message == 'NICK':
-                client.send(nickname.encode('ascii'))
-            else:
-                print(message)
-        except:
-            # Close Connection When Error
-            print("An error occured!")
-            client.close()
-            break
-
-
-# Sending Messages To Server
-def write():
-    while True:
-        message = '{}: {}'.format(nickname, input(''))
-        client.send(message.encode('ascii'))
-
-
-# Starting Threads For Listening And Writing
-receive_thread = threading.Thread(target=receive)
-receive_thread.start()
-
-write_thread = threading.Thread(target=write)
-write_thread.start()
