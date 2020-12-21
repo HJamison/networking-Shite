@@ -1,54 +1,42 @@
 import socket
-import select
-import sys
-import errno
+import threading
 
-header_length = 10
-IP = "127.0.0.1"
-PORT = 6667
+p_host = '127.0.0.1'
+p_port = 6667
 
-my_username = input("Username: ")
-# my_username = ""
+nickname = input("Choose a nickname: ")
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((IP, PORT))
-client_socket.setblocking(False)
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect((p_host,p_port))
 
-username = my_username.encode("utf-8")
-unsername_header = f"{len(username):<{header_length}}".encode("utf-8")
-client_socket.send(unsername_header + username)
-
-while True:
-    #Sending recieving messages here
-    # message = input(f"{my_username} > ")   ## Switch to this if you want to enter stuff
-    message = ""                            ## Switch to this if you watn to be a bystander / reader
-                                            ## DO NOT HAVE BOTH RUNNING comment one out.
-
-    if message:
-        message = message.encode("utf-8")
-        message_header = f"{len(message) :<{header_length}}".encode("utf-8")
-        client_socket.send(message_header + message)
-
-    try:
-        while True:
-            #attempt to receive messages
-            unsername_header = client_socket.recv(header_length)
-            if not len(unsername_header):
-                print("Connection closed by the server")
-                sys.exit()
-
-            username_length = int(unsername_header.decode("utf-8"))
-            username = client_socket.recv(username_length).decode("utf-8")
-
-            message_header = client_socket.recv(header_length)
-            message_length = int(message_header.decode("utf-8"))
-            message = client_socket.recv(message_length).decode("utf-8")
-
-            print(f"{username} > {message}")
+# Listening to Server and Sending Nickname
+def receive():
+    while True:
+        try:
+            # Receive Message From Server
+            # If 'NICK' Send Nickname
+            message = client.recv(1024).decode('ascii')
+            if message == 'NICK':
+                client.send(nickname.encode('ascii'))
+            else:
+                print(message)
+        except:
+            # Close Connection When Error
+            print("An error occured!")
+            client.close()
+            break
 
 
-    except IOError as e:
-        if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK:
-            print('Reading error',str(e))
-            sys.exit()
-        continue
+# Sending Messages To Server
+def write():
+    while True:
+        message = '{}: {}'.format(nickname, input(''))
+        client.send(message.encode('ascii'))
+
+
+# Starting Threads For Listening And Writing
+receive_thread = threading.Thread(target=receive)
+receive_thread.start()
+
+write_thread = threading.Thread(target=write)
+write_thread.start()
